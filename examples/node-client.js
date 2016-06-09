@@ -12,11 +12,18 @@ client.connect(PORT, HOST, () => {
     console.log('CONNECTED');
 
     sendInterval = setInterval(() => {
-        const data = 'hello';
+        const data = 'GET "test"';
+        // const data = 'SET "test" "data"';
 
         console.log(`SENT: ${data}`);
 
         client.write(data);
+
+        client.write('SET "test" "data"');
+
+        setTimeout(() => {
+            client.write('DEL "test"');
+        }, 5000);
     }, 1000);
 });
 

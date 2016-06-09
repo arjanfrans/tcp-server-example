@@ -14,7 +14,7 @@ include_directories(
 file(GLOB_RECURSE SOURCES *.cc *.cpp)
 
 ## C++ compiler options
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++14")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++17")
 
 ## -O0 = optimize for compilation time
 ## -03 = optimize for code size and execution time

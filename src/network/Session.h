@@ -1,21 +1,26 @@
 #pragma once
 
-#include <memory>
 #include <boost/asio.hpp>
+#include <string>
+#include <memory>
+
+#include "RequestHandler.h"
 
 using boost::asio::ip::tcp;
 
 class Session : public std::enable_shared_from_this<Session> {
     public:
-        Session (tcp::socket socket);
+        Session(tcp::socket socket, const std::shared_ptr<RequestHandler> requestHandler);
 
-        void start ();
+        void start();
 
     private:
-        void read ();
-        void write (std::size_t length);
+        void read();
+        void write(std::string output);
 
-        tcp::socket socket_;
+        std::shared_ptr<RequestHandler> requestHandler;
+
+        tcp::socket socket;
         enum { max_length = 1024 };
-        char data_[max_length];
+        char dataBuffer[max_length];
 };

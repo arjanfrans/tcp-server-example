@@ -1,7 +1,7 @@
 ---
 Language:        Cpp
 # BasedOnStyle:  LLVM
-AccessModifierOffset: -4
+AccessModifierOffset: -4 
 AlignAfterOpenBracket: true
 AlignEscapedNewlinesLeft: false
 AlignOperands:   true
@@ -43,10 +43,10 @@ PenaltyReturnTypeOnItsOwnLine: 60
 PointerAlignment: Right
 SpacesBeforeTrailingComments: 1
 Cpp11BracedListStyle: true
-Standard:        Cpp11
-IndentWidth:     4
-TabWidth:        4
-UseTab:          Never
+Standard: Auto
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
 BreakBeforeBraces: Attach
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
@@ -62,4 +62,3 @@ ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH ]
 SpaceBeforeParens: ControlStatements
 DisableFormat:   false
 ...
-

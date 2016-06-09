@@ -1,18 +1,18 @@
-//
-// async_tcp_echo_server.cpp
-// ~~~~~~~~~~~~~~~~~~~~~~~~~
-//
-// Copyright (c) 2003-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
+#include "network/Server.h"
 #include <cstdlib>
 #include <iostream>
-#include "network/Server.h"
+#include <memory>
 
-int main(int argc, char* argv[]) {
+#include "CommandHandler.h"
+#include "storage/BasicStorage.h"
+
+#define  ELPP_NO_DEFAULT_LOG_FILE
+
+#include "logger.h"
+
+INITIALIZE_LOGGER
+
+int main(int argc, char *argv[]) {
     try {
         if (argc != 2) {
             std::cerr << "Usage: async_tcp_echo_server <port>\n";
@@ -20,10 +20,13 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        Server server(std::atoi(argv[1]));
+        auto storage = std::make_unique<BasicStorage>();
+        auto commandHandler = std::make_shared<CommandHandler>(std::move(storage));
+
+        Server server(std::atoi(argv[1]), commandHandler);
 
         server.run();
-    } catch (std::exception& e) {
+    } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << "\n";
     }
 
