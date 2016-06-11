@@ -5,6 +5,7 @@
 
 #include "Session.h"
 #include "RequestHandler.h"
+#include "../logger.h"
 
 using boost::asio::ip::tcp;
 
@@ -18,13 +19,18 @@ void Session::start () {
 void Session::read () {
     auto self(this->shared_from_this());
 
-    this->socket.async_read_some(boost::asio::buffer(this->dataBuffer, max_length), [this, self](boost::system::error_code ec, std::size_t) {
+    boost::asio::async_read_until(this->socket, this->inputBuffer, '\n', [this, self](boost::system::error_code ec, std::size_t) {
         if (!ec) {
-            auto input = std::string(this->dataBuffer);
+            std::istream inputStream(&this->inputBuffer);
+            std::string input;
+            std::getline(inputStream, input);
+
             auto response = this->requestHandler->handle(input);
 
-            this->write(response);
-            this->dataBuffer[max_length] = '\0';
+            LOG(INFO) << "res: " + response;
+            this->write(response + "\n");
+        } else {
+            LOG(INFO) << "error: " + ec.message();
         }
     });
 }

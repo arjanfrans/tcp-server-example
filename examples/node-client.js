@@ -8,33 +8,94 @@ const HOST = '127.0.0.1';
 
 let sendInterval = null;
 
+const CONCURRENCY = 50;
+const WRITE_COMMANDS = 20;
+
+let count = 0;
 client.connect(PORT, HOST, () => {
     console.log('CONNECTED');
 
-    sendInterval = setInterval(() => {
-        const data = 'GET "test"';
-        // const data = 'SET "test" "data"';
+    const writes = [];
 
-        console.log(`SENT: ${data}`);
+    for (let i = 0; i < CONCURRENCY; i++) {
+        writes.push(new Promise((resolve) => {
+            for (let j = 0; j < WRITE_COMMANDS; j++) {
+                const data = `SET "${j}test" "${Math.random()}"\n`;
 
-        client.write(data);
+                setTimeout(() => {
+                    client.write(data);
+                }, 1000);
 
-        client.write('SET "test" "data"');
+                // console.log('writing ' + count);
 
-        setTimeout(() => {
-            client.write('DEL "test"');
-        }, 5000);
-    }, 1000);
+                count += 1;
+            }
+
+            resolve();
+        }));
+    }
+
+    const reads = [];
+
+    // for (let i = 0; i < CONCURRENCY; i++) {
+    //     reads.push(new Promise((resolve) => {
+    //         for (let j = 0; j < WRITE_COMMANDS; j++) {
+    //             const data = `GET "${0}test" \n`;
+    //
+    //             client.write(data);
+    //
+    //             // console.log('reading ' + count);
+    //
+    //             count += 1;
+    //         }
+    //
+    //         resolve();
+    //     }));
+    // }
+
+    Promise.all(writes).then(() => {
+        return Promise.all(writes);
+    }).catch((err) => console.log(err));
 });
 
-client.on('data', (data) => {
-    console.log(`RECEIVED: ${data}`);
-});
+let received = 0;
 
 client.on('close', () => {
     console.log('CLOSED');
+});
 
-    if (sendInterval) {
-        clearInterval(sendInterval);
+function newLineStream (done) {
+	let buffer = '';
+
+    return (chunk) => {
+        let i = 0
+        let piece = '';
+        let offset = 0;
+
+		buffer += chunk;
+
+		while ((i = buffer.indexOf('\n', offset)) !== -1) {
+			piece = buffer.substr(offset, i - offset);
+			offset = i + 1;
+
+			done(piece);
+		}
+
+		buffer = buffer.substr(offset);
+	};
+}
+
+console.time('start');
+var myListener = newLineStream( function (message) {
+    received += 1;
+
+    if (received === count) {
+        console.timeEnd('start');
+        console.log('DONE');
     }
+});
+
+client.on('data', myListener);
+client.on('error', (err) => {
+    console.log(err.stack);
 });
